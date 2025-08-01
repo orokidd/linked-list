@@ -1,4 +1,4 @@
-class ListNode {
+class Node {
   constructor(value) {
     this.value = value;
     this.next = null;
@@ -13,7 +13,7 @@ class LinkedList {
   }
 
   append(value) {
-    const node = new ListNode(value);
+    const node = new Node(value);
     if (!this.tail) {
       this.head = this.tail = node;
     } else {
@@ -24,7 +24,7 @@ class LinkedList {
   }
 
   prepend(value) {
-    const node = new ListNode(value);
+    const node = new Node(value);
     if (!this.head) {
       this.head = this.tail = node;
     } else {
@@ -82,66 +82,109 @@ class LinkedList {
     return popped;
   }
 
-  insertAt(index, value) {
-    if (index <= 0) return this.prepend(value);
-    if (index >= this.length) return this.append(value);
+  contains(value) {
+    let current = this.head;
+    while (current) {
+      if (current.value === value) return true;
+      current = current.next;
+    }
+    return false;
+  }
 
+  find(value) {
+    let current = this.head;
+    let index = 0;
+
+    while (current) {
+      if (current.value === value) {
+        return index;
+      }
+      current = current.next;
+      index++;
+    }
+
+    return null;
+  }
+
+  toString() {
+    let output = "";
+    let current = this.head;
+    while (current) {
+      output += `( ${current.value} ) -> `;
+      current = current.next;
+    }
+    output += "null";
+    return output;
+  }
+
+  insertAt(value, index) {
+    const node = new Node(value);
+
+    if (index <= 0 || !this.head) {
+      // Insert at the beginning
+      node.next = this.head;
+      this.head = node;
+      if (!this.tail) this.tail = node;
+      this.length++;
+      return;
+    }
+
+    if (index >= this.length) {
+      // Insert at the end
+      this.tail.next = node;
+      this.tail = node;
+      this.length++;
+      return;
+    }
+
+    // Insert in the middle
     let prev = this.head;
-    for (let i = 0; i < index - 1; i++) prev = prev.next;
+    for (let i = 0; i < index - 1; i++) {
+      prev = prev.next;
+    }
 
-    const node = new ListNode(value);
     node.next = prev.next;
     prev.next = node;
     this.length++;
   }
 
   removeAt(index) {
-    if (!this.head) return undefined;
+    if (index < 0 || index >= this.length || !this.head) return null;
 
-    if (index <= 0) {
-      const val = this.head.value;
+    let removed;
+
+    if (index === 0) {
+      removed = this.head;
       this.head = this.head.next;
-      if (!this.head) this.tail = null;
+      if (this.length === 1) this.tail = null;
       this.length--;
-      return val;
+      return removed;
     }
 
     let prev = this.head;
-    for (let i = 0; i < index - 1 && prev.next; i++) prev = prev.next;
-    if (!prev.next) return undefined;
-
-    const val = prev.next.value;
-    prev.next = prev.next.next;
-    if (!prev.next) this.tail = prev;
-    this.length--;
-    return val;
-  }
-
-  find(predicateOrValue) {
-    let i = 0, cur = this.head;
-    while (cur) {
-      const match = (typeof predicateOrValue === "function")
-        ? predicateOrValue(cur.value, i)
-        : cur.value === predicateOrValue;
-      if (match) return cur;
-      cur = cur.next; i++;
+    for (let i = 0; i < index - 1; i++) {
+      prev = prev.next;
     }
-    return null;
-  }
 
-  toArray() {
-    const out = [];
-    let cur = this.head;
-    while (cur) { out.push(cur.value); cur = cur.next; }
-    return out;
+    removed = prev.next;
+    prev.next = removed.next;
+
+    if (removed === this.tail) {
+      this.tail = prev;
+    }
+
+    this.length--;
+    return removed;
   }
 }
 
-// Example
 const list = new LinkedList();
-list.append(10);
-list.append(20);
-list.prepend(5);      // [5, 10, 20]
-list.insertAt(2, 15); // [5, 10, 15, 20]
-list.removeAt(1);     // removes 10 -> [5, 15, 20]
-console.log(list.toArray());
+
+list.append("dog");
+list.append("cat");
+list.append("parrot");
+list.append("hamster");
+list.append("snake");
+list.append("turtle");
+
+console.log(list.toString());
